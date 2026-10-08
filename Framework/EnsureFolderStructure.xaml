@@ -1,0 +1,157 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="EnsureFolderStructure" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:String))" />
+    <x:Property Name="in_SourceFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_BreakdownFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="out_AutomationRootPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_StateFolderPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_LogsFolderPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_ReportingFolderPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_ManifestPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_RunLogPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_SummaryWorkbookPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:ExpressionActivityEditor.ExpressionActivityEditor>C#</sap2010:ExpressionActivityEditor.ExpressionActivityEditor>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Ensure Folder Structure" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment DisplayName="Purpose" sap2010:WorkflowViewState.IdRef="Comment_1" Text="Verify the expected source folder exists, create required output and automation folders idempotently, and return the manifest, run-log, and reporting file paths." />
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="if (in_Config == null)&#xA;{&#xA;    throw new System.ArgumentNullException(&#xA;        &quot;in_Config&quot;,&#xA;        &quot;Configuration dictionary cannot be null.&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_SourceFolderPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Source folder path cannot be blank.&quot;,&#xA;        &quot;in_SourceFolderPath&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_BreakdownFolderPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Breakdown folder path cannot be blank.&quot;,&#xA;        &quot;in_BreakdownFolderPath&quot;);&#xA;}" DisplayName="01 - Validate Inputs" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">in_SourceFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">in_BreakdownFolderPath</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="if (!System.IO.Directory.Exists(in_SourceFolderPath))&#xA;{&#xA;    throw new System.IO.DirectoryNotFoundException(&#xA;        &quot;The expected ACH source folder was not found: &quot; +&#xA;        in_SourceFolderPath);&#xA;}" DisplayName="02 - Verify Source Folder Exists" sap2010:WorkflowViewState.IdRef="InvokeCode_2" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">in_SourceFolderPath</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="string automationRootPath =&#xA;    System.IO.Path.Combine(&#xA;        in_Config[&quot;DataRoot&quot;],&#xA;        in_Config[&quot;AutomationFolderName&quot;],&#xA;        in_Config[&quot;AutomationAppFolderName&quot;]);&#xA;&#xA;string stateFolderPath =&#xA;    System.IO.Path.Combine(&#xA;        automationRootPath,&#xA;        in_Config[&quot;StateFolderName&quot;]);&#xA;&#xA;string logsFolderPath =&#xA;    System.IO.Path.Combine(&#xA;        automationRootPath,&#xA;        in_Config[&quot;LogsFolderName&quot;]);&#xA;&#xA;string reportingFolderPath =&#xA;    System.IO.Path.Combine(&#xA;        automationRootPath,&#xA;        in_Config[&quot;ReportingFolderName&quot;]);&#xA;&#xA;out_AutomationRootPath = automationRootPath;&#xA;out_StateFolderPath = stateFolderPath;&#xA;out_LogsFolderPath = logsFolderPath;&#xA;out_ReportingFolderPath = reportingFolderPath;" DisplayName="03 - Build Automation Folder Paths" sap2010:WorkflowViewState.IdRef="InvokeCode_3" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">in_Config</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_AutomationRootPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">out_AutomationRootPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_StateFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">out_StateFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_LogsFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">out_LogsFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_ReportingFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">out_ReportingFolderPath</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="System.IO.Directory.CreateDirectory(in_BreakdownFolderPath);&#xA;System.IO.Directory.CreateDirectory(in_AutomationRootPath);&#xA;System.IO.Directory.CreateDirectory(in_StateFolderPath);&#xA;System.IO.Directory.CreateDirectory(in_LogsFolderPath);&#xA;System.IO.Directory.CreateDirectory(in_ReportingFolderPath);" DisplayName="04 - Ensure Required Folders" sap2010:WorkflowViewState.IdRef="InvokeCode_4" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">in_BreakdownFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_AutomationRootPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">out_AutomationRootPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_StateFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">out_StateFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_LogsFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">out_LogsFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_ReportingFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">out_ReportingFolderPath</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="out_ManifestPath =&#xA;    System.IO.Path.Combine(&#xA;        in_StateFolderPath,&#xA;        in_Config[&quot;ManifestFileName&quot;]);&#xA;&#xA;out_RunLogPath =&#xA;    System.IO.Path.Combine(&#xA;        in_LogsFolderPath,&#xA;        in_Config[&quot;RunLogFileName&quot;]);&#xA;&#xA;out_SummaryWorkbookPath =&#xA;    System.IO.Path.Combine(&#xA;        in_ReportingFolderPath,&#xA;        in_Config[&quot;SummaryWorkbookName&quot;]);" DisplayName="05 - Build State and Reporting File Paths" sap2010:WorkflowViewState.IdRef="InvokeCode_5" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_StateFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">out_StateFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_LogsFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">out_LogsFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_ReportingFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_14">out_ReportingFolderPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_ManifestPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_5">out_ManifestPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_RunLogPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_6">out_RunLogPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_SummaryWorkbookPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_7">out_SummaryWorkbookPath</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="out_Message =&#xA;    &quot;Folder structure is ready. Source folder verified: &quot; +&#xA;    in_SourceFolderPath +&#xA;    &quot;. Breakdown folder: &quot; +&#xA;    in_BreakdownFolderPath +&#xA;    &quot;. Automation root: &quot; +&#xA;    in_AutomationRootPath +&#xA;    &quot;.&quot;;" DisplayName="06 - Build Success Message" sap2010:WorkflowViewState.IdRef="InvokeCode_6" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_15">in_SourceFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_16">in_BreakdownFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_AutomationRootPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_17">out_AutomationRootPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_8">out_Message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

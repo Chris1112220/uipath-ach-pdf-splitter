@@ -1,0 +1,149 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="ResolveProcessingPeriod" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:String))" />
+    <x:Property Name="in_RunDate" Type="InArgument(s:DateTime)" />
+    <x:Property Name="out_FiscalYearNumber" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_FiscalPeriod" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_MonthName" Type="OutArgument(x:String)" />
+    <x:Property Name="out_FiscalYearFolderName" Type="OutArgument(x:String)" />
+    <x:Property Name="out_PeriodFolderName" Type="OutArgument(x:String)" />
+    <x:Property Name="out_SourceFolderPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_BreakdownFolderPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:ExpressionActivityEditor.ExpressionActivityEditor>C#</sap2010:ExpressionActivityEditor.ExpressionActivityEditor>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Resolve Processing Period" sap:VirtualizedContainerService.HintSize="950,1299" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment DisplayName="Purpose" sap:VirtualizedContainerService.HintSize="450,147" sap2010:WorkflowViewState.IdRef="Comment_1" Text="Resolve a calendar run date into fiscal-year and fiscal-period values (fiscal year start month is configurable), then construct the source and split-output folder paths from validated configuration." />
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="if (in_Config == null)&#xA;{&#xA;    throw new System.ArgumentNullException(&#xA;        &quot;in_Config&quot;,&#xA;        &quot;Configuration dictionary cannot be null.&quot;);&#xA;}&#xA;&#xA;if (!in_Config.ContainsKey(&quot;FiscalYearStartMonth&quot;))&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;Configuration key 'FiscalYearStartMonth' is required.&quot;);&#xA;}&#xA;&#xA;if (!int.TryParse(&#xA;        in_Config[&quot;FiscalYearStartMonth&quot;],&#xA;        out int fiscalYearStartMonth) ||&#xA;    fiscalYearStartMonth &lt; 1 ||&#xA;    fiscalYearStartMonth &gt; 12)&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;FiscalYearStartMonth must be a whole number from 1 through 12.&quot;);&#xA;}" DisplayName="01 - Validate Inputs" sap:VirtualizedContainerService.HintSize="450,197" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">in_Config</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="int fiscalYearStartMonth =&#xD;&#xA;    int.Parse(in_Config[&quot;FiscalYearStartMonth&quot;]);&#xD;&#xA;&#xD;&#xA;int fiscalYearNumber =&#xD;&#xA;    in_RunDate.Month &gt;= fiscalYearStartMonth&#xD;&#xA;        ? in_RunDate.Year + 1&#xD;&#xA;        : in_RunDate.Year;&#xD;&#xA;&#xD;&#xA;int fiscalPeriod =&#xD;&#xA;    ((in_RunDate.Month - fiscalYearStartMonth + 12) % 12) + 1;&#xD;&#xA;&#xD;&#xA;string monthName =&#xD;&#xA;    in_RunDate.ToString(&#xD;&#xA;        &quot;MMMM&quot;,&#xD;&#xA;        System.Globalization.CultureInfo.InvariantCulture);&#xD;&#xA;&#xD;&#xA;out_FiscalYearNumber = fiscalYearNumber;&#xD;&#xA;out_FiscalPeriod = fiscalPeriod;&#xD;&#xA;out_MonthName = monthName;" DisplayName="02 - Calculate Fiscal Values" sap:VirtualizedContainerService.HintSize="450,197" sap2010:WorkflowViewState.IdRef="InvokeCode_2" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDate">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">in_RunDate</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_FiscalYearNumber">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">out_FiscalYearNumber</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_FiscalPeriod">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">out_FiscalPeriod</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_MonthName">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">out_MonthName</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="string fiscalYearTwoDigit =&#xD;&#xA;    (out_FiscalYearNumber % 100).ToString(&quot;00&quot;);&#xD;&#xA;&#xD;&#xA;string fiscalYearFolderName =&#xD;&#xA;    in_Config[&quot;FiscalYearFolderPattern&quot;]&#xD;&#xA;        .Replace(&quot;{YY}&quot;, fiscalYearTwoDigit);&#xD;&#xA;&#xD;&#xA;string periodFolderName =&#xD;&#xA;    in_Config[&quot;FiscalPeriodFolderPattern&quot;]&#xD;&#xA;        .Replace(&quot;{Period:00}&quot;, out_FiscalPeriod.ToString(&quot;00&quot;))&#xD;&#xA;        .Replace(&quot;{MonthName}&quot;, out_MonthName);&#xD;&#xA;&#xD;&#xA;out_FiscalYearFolderName = fiscalYearFolderName;&#xD;&#xA;out_PeriodFolderName = periodFolderName;" DisplayName="03 - Build Fiscal Folder Names" sap:VirtualizedContainerService.HintSize="450,197" sap2010:WorkflowViewState.IdRef="InvokeCode_3" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_FiscalYearNumber">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">out_FiscalYearNumber</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_FiscalPeriod">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">out_FiscalPeriod</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="out_MonthName">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">out_MonthName</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_FiscalYearFolderName">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">out_FiscalYearFolderName</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_PeriodFolderName">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_5">out_PeriodFolderName</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <Assign DisplayName="04 - Build Source Folder Path" sap:VirtualizedContainerService.HintSize="450,175" sap2010:WorkflowViewState.IdRef="Assign_1">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_6">out_SourceFolderPath</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">System.IO.Path.Combine( in_Config["DataRoot"], out_FiscalYearFolderName, in_Config["BankActivityFolderName"], out_PeriodFolderName, in_Config["SourceSubfolderName"])</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="05 - Build Breakdown Folder Path" sap:VirtualizedContainerService.HintSize="450,175" sap2010:WorkflowViewState.IdRef="Assign_2">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_7">out_BreakdownFolderPath</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">System.IO.Path.Combine( in_Config["DataRoot"], out_FiscalYearFolderName, in_Config["BankActivityFolderName"], out_PeriodFolderName, in_Config["BreakdownSubfolderName"])</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="out_Message =&#xA;    &quot;Resolved &quot; +&#xA;    in_RunDate.ToString(&quot;yyyy-MM-dd&quot;) +&#xA;    &quot; to fiscal year &quot; +&#xA;    out_FiscalYearNumber.ToString() +&#xA;    &quot;, fiscal period &quot; +&#xA;    out_FiscalPeriod.ToString(&quot;00&quot;) +&#xA;    &quot; (&quot; +&#xA;    out_MonthName +&#xA;    &quot;).&quot;;" DisplayName="06 - Build Success Message" sap:VirtualizedContainerService.HintSize="450,188" sap2010:WorkflowViewState.IdRef="InvokeCode_4" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDate">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">in_RunDate</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_FiscalYearNumber">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">out_FiscalYearNumber</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_FiscalPeriod">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">out_FiscalPeriod</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="out_MonthName">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">out_MonthName</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_8">out_Message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

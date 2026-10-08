@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Activity
+    x:Class="ComputeFileHash"
+    mc:Ignorable="sap sap2010"
+    mva:VisualBasic.Settings="{x:Null}"
+    sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#"
+    xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+    xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+    xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+    xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+    xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib"
+    xmlns:ui="http://schemas.uipath.com/workflow/activities"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <x:Members>
+    <x:Property Name="in_FilePath" Type="InArgument(x:String)" />
+    <x:Property Name="in_HashAlgorithm" Type="InArgument(x:String)" />
+    <x:Property Name="out_FileHash" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Security.Cryptography</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Security.Cryptography</AssemblyReference>
+      <AssemblyReference>System.Security.Cryptography.Algorithms</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+
+  <Sequence DisplayName="Compute File Hash">
+
+    <ui:Comment
+        DisplayName="Purpose"
+        Text="Calculate a deterministic SHA-256 fingerprint for one source file so the application can identify already-processed content." />
+
+    <ui:InvokeCode
+        DisplayName="01 - Validate Inputs"
+        Language="CSharp"
+        Code="if (string.IsNullOrWhiteSpace(in_FilePath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;File path cannot be blank.&quot;,&#xA;        &quot;in_FilePath&quot;);&#xA;}&#xA;&#xA;if (!System.IO.File.Exists(in_FilePath))&#xA;{&#xA;    throw new System.IO.FileNotFoundException(&#xA;        &quot;The file to hash was not found.&quot;,&#xA;        in_FilePath);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_HashAlgorithm))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Hash algorithm cannot be blank.&quot;,&#xA;        &quot;in_HashAlgorithm&quot;);&#xA;}&#xA;&#xA;if (!string.Equals(&#xA;        in_HashAlgorithm,&#xA;        &quot;SHA256&quot;,&#xA;        System.StringComparison.OrdinalIgnoreCase))&#xA;{&#xA;    throw new System.NotSupportedException(&#xA;        &quot;Unsupported hash algorithm: &quot; +&#xA;        in_HashAlgorithm +&#xA;        &quot;. This workflow currently supports SHA256.&quot;);&#xA;}">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_FilePath">
+            <CSharpValue x:TypeArguments="x:String">in_FilePath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_HashAlgorithm">
+            <CSharpValue x:TypeArguments="x:String">in_HashAlgorithm</CSharpValue>
+          </InArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+    <ui:InvokeCode
+        DisplayName="02 - Calculate SHA256"
+        Language="CSharp"
+        Code="byte[] hashBytes;&#xA;&#xA;using (System.IO.FileStream fileStream =&#xA;       System.IO.File.OpenRead(in_FilePath))&#xA;{&#xA;    using (System.Security.Cryptography.SHA256 sha256 =&#xA;           System.Security.Cryptography.SHA256.Create())&#xA;    {&#xA;        hashBytes = sha256.ComputeHash(fileStream);&#xA;    }&#xA;}&#xA;&#xA;out_FileHash =&#xA;    System.BitConverter&#xA;        .ToString(hashBytes)&#xA;        .Replace(&quot;-&quot;, string.Empty);">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_FilePath">
+            <CSharpValue x:TypeArguments="x:String">in_FilePath</CSharpValue>
+          </InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_FileHash">
+            <CSharpReference x:TypeArguments="x:String">out_FileHash</CSharpReference>
+          </OutArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+    <ui:InvokeCode
+        DisplayName="03 - Build Hash Message"
+        Language="CSharp"
+        Code="out_Message =&#xA;    &quot;SHA256 calculated for &quot; +&#xA;    System.IO.Path.GetFileName(in_FilePath) +&#xA;    &quot;: &quot; +&#xA;    out_FileHash;">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_FilePath">
+            <CSharpValue x:TypeArguments="x:String">in_FilePath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="out_FileHash">
+            <CSharpValue x:TypeArguments="x:String">out_FileHash</CSharpValue>
+          </InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+            <CSharpReference x:TypeArguments="x:String">out_Message</CSharpReference>
+          </OutArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+  </Sequence>
+</Activity>

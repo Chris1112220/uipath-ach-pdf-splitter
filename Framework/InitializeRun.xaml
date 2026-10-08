@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Activity
+    x:Class="InitializeRun"
+    mc:Ignorable="sap sap2010"
+    mva:VisualBasic.Settings="{x:Null}"
+    sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#"
+    xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+    xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+    xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+    xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+    xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+    xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib"
+    xmlns:ui="http://schemas.uipath.com/workflow/activities"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <x:Members>
+    <x:Property Name="in_RunDateTime" Type="InArgument(s:DateTime)" />
+    <x:Property Name="out_RunId" Type="OutArgument(x:String)" />
+    <x:Property Name="out_RunStartedAt" Type="OutArgument(s:DateTime)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+
+  <Sequence DisplayName="Initialize Run">
+    <ui:Comment
+        DisplayName="Purpose"
+        Text="Create a unique run identifier and establish one consistent run start timestamp for the entire execution." />
+
+    <ui:InvokeCode
+        DisplayName="01 - Initialize Run Context"
+        Language="CSharp"
+        Code="out_RunId =&#xA;    System.Guid.NewGuid().ToString(&quot;N&quot;);&#xA;&#xA;out_RunStartedAt =&#xA;    in_RunDateTime;&#xA;&#xA;out_Message =&#xA;    &quot;Run initialized. RunId=&quot; +&#xA;    out_RunId +&#xA;    &quot;; StartedAt=&quot; +&#xA;    out_RunStartedAt.ToString(&quot;yyyy-MM-dd HH:mm:ss&quot;) +&#xA;    &quot;.&quot;;">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDateTime">
+            <CSharpValue x:TypeArguments="s:DateTime">in_RunDateTime</CSharpValue>
+          </InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_RunId">
+            <CSharpReference x:TypeArguments="x:String">out_RunId</CSharpReference>
+          </OutArgument>
+          <OutArgument x:TypeArguments="s:DateTime" x:Key="out_RunStartedAt">
+            <CSharpReference x:TypeArguments="s:DateTime">out_RunStartedAt</CSharpReference>
+          </OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+            <CSharpReference x:TypeArguments="x:String">out_Message</CSharpReference>
+          </OutArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

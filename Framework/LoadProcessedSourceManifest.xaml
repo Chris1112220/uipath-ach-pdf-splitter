@@ -1,0 +1,107 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="LoadProcessedSourceManifest" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_ManifestPath" Type="InArgument(x:String)" />
+    <x:Property Name="out_ProcessedHashes" Type="OutArgument(scg:HashSet(x:String))" />
+    <x:Property Name="out_ManifestRowCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:ExpressionActivityEditor.ExpressionActivityEditor>C#</sap2010:ExpressionActivityEditor.ExpressionActivityEditor>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic.FileIO</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Load Processed Source Manifest" sap:VirtualizedContainerService.HintSize="1091,752" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment DisplayName="Purpose" sap:VirtualizedContainerService.HintSize="450,147" sap2010:WorkflowViewState.IdRef="Comment_1" Text="Load successful source-file hashes from ProcessedSourceManifest.csv into a case-insensitive HashSet for fast idempotency checks." />
+    <ui:InvokeCode Code="if (string.IsNullOrWhiteSpace(in_ManifestPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Manifest path cannot be blank.&quot;,&#xA;        &quot;in_ManifestPath&quot;);&#xA;}" ContinueOnError="{x:Null}" DisplayName="01 - Validate Manifest Path" sap:VirtualizedContainerService.HintSize="450,197" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_ManifestPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">
+            <CSharpValue.Result>
+              <OutArgument x:TypeArguments="x:String" />
+            </CSharpValue.Result>in_ManifestPath</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode Code="System.Collections.Generic.HashSet&lt;string&gt; processedHashes =&#xD;&#xA;    new System.Collections.Generic.HashSet&lt;string&gt;(&#xD;&#xA;        System.StringComparer.OrdinalIgnoreCase);&#xD;&#xA;&#xD;&#xA;int manifestRowCount = 0;&#xD;&#xA;&#xD;&#xA;// Small CSV parser that supports quoted values and escaped quotes.&#xD;&#xA;// This avoids relying on Microsoft.VisualBasic.FileIO.&#xD;&#xA;System.Func&lt;string, string[]&gt; parseCsvLine = line =&gt;&#xD;&#xA;{&#xD;&#xA;    System.Collections.Generic.List&lt;string&gt; fields =&#xD;&#xA;        new System.Collections.Generic.List&lt;string&gt;();&#xD;&#xA;&#xD;&#xA;    System.Text.StringBuilder current =&#xD;&#xA;        new System.Text.StringBuilder();&#xD;&#xA;&#xD;&#xA;    bool insideQuotes = false;&#xD;&#xA;&#xD;&#xA;    for (int i = 0; i &lt; line.Length; i++)&#xD;&#xA;    {&#xD;&#xA;        char c = line[i];&#xD;&#xA;&#xD;&#xA;        if (c == '&quot;')&#xD;&#xA;        {&#xD;&#xA;            // Two double-quotes inside a quoted field represent one quote.&#xD;&#xA;            if (insideQuotes &amp;&amp;&#xD;&#xA;                i + 1 &lt; line.Length &amp;&amp;&#xD;&#xA;                line[i + 1] == '&quot;')&#xD;&#xA;            {&#xD;&#xA;                current.Append('&quot;');&#xD;&#xA;                i++;&#xD;&#xA;            }&#xD;&#xA;            else&#xD;&#xA;            {&#xD;&#xA;                insideQuotes = !insideQuotes;&#xD;&#xA;            }&#xD;&#xA;        }&#xD;&#xA;        else if (c == ',' &amp;&amp; !insideQuotes)&#xD;&#xA;        {&#xD;&#xA;            fields.Add(current.ToString());&#xD;&#xA;            current.Clear();&#xD;&#xA;        }&#xD;&#xA;        else&#xD;&#xA;        {&#xD;&#xA;            current.Append(c);&#xD;&#xA;        }&#xD;&#xA;    }&#xD;&#xA;&#xD;&#xA;    fields.Add(current.ToString());&#xD;&#xA;&#xD;&#xA;    return fields.ToArray();&#xD;&#xA;};&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;if (System.IO.File.Exists(in_ManifestPath) &amp;&amp;&#xD;&#xA;    new System.IO.FileInfo(in_ManifestPath).Length &gt; 0)&#xD;&#xA;{&#xD;&#xA;    string[] lines =&#xD;&#xA;        System.IO.File.ReadAllLines(in_ManifestPath);&#xD;&#xA;&#xD;&#xA;    if (lines.Length &gt; 0)&#xD;&#xA;    {&#xD;&#xA;        string[] headers =&#xD;&#xA;            parseCsvLine(lines[0]);&#xD;&#xA;&#xD;&#xA;        int hashIndex =&#xD;&#xA;            System.Array.FindIndex(&#xD;&#xA;                headers,&#xD;&#xA;                header =&gt; string.Equals(&#xD;&#xA;                    header == null ? string.Empty : header.Trim(),&#xD;&#xA;                    &quot;FileHash&quot;,&#xD;&#xA;                    System.StringComparison.OrdinalIgnoreCase));&#xD;&#xA;&#xD;&#xA;        int statusIndex =&#xD;&#xA;            System.Array.FindIndex(&#xD;&#xA;                headers,&#xD;&#xA;                header =&gt; string.Equals(&#xD;&#xA;                    header == null ? string.Empty : header.Trim(),&#xD;&#xA;                    &quot;Status&quot;,&#xD;&#xA;                    System.StringComparison.OrdinalIgnoreCase));&#xD;&#xA;&#xD;&#xA;        if (hashIndex &lt; 0 || statusIndex &lt; 0)&#xD;&#xA;        {&#xD;&#xA;            throw new System.InvalidOperationException(&#xD;&#xA;                &quot;ProcessedSourceManifest.csv must contain FileHash and Status columns.&quot;);&#xD;&#xA;        }&#xD;&#xA;&#xD;&#xA;        for (int i = 1; i &lt; lines.Length; i++)&#xD;&#xA;        {&#xD;&#xA;            if (string.IsNullOrWhiteSpace(lines[i]))&#xD;&#xA;            {&#xD;&#xA;                continue;&#xD;&#xA;            }&#xD;&#xA;&#xD;&#xA;            string[] fields =&#xD;&#xA;                parseCsvLine(lines[i]);&#xD;&#xA;&#xD;&#xA;            if (fields.Length &lt;=&#xD;&#xA;                System.Math.Max(hashIndex, statusIndex))&#xD;&#xA;            {&#xD;&#xA;                continue;&#xD;&#xA;            }&#xD;&#xA;&#xD;&#xA;            manifestRowCount++;&#xD;&#xA;&#xD;&#xA;            string fileHash =&#xD;&#xA;                fields[hashIndex] == null&#xD;&#xA;                    ? string.Empty&#xD;&#xA;                    : fields[hashIndex].Trim();&#xD;&#xA;&#xD;&#xA;            string status =&#xD;&#xA;                fields[statusIndex] == null&#xD;&#xA;                    ? string.Empty&#xD;&#xA;                    : fields[statusIndex].Trim();&#xD;&#xA;&#xD;&#xA;            if (!string.IsNullOrWhiteSpace(fileHash) &amp;&amp;&#xD;&#xA;                string.Equals(&#xD;&#xA;                    status,&#xD;&#xA;                    &quot;Success&quot;,&#xD;&#xA;                    System.StringComparison.OrdinalIgnoreCase))&#xD;&#xA;            {&#xD;&#xA;                processedHashes.Add(fileHash);&#xD;&#xA;            }&#xD;&#xA;        }&#xD;&#xA;    }&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;out_ProcessedHashes = processedHashes;&#xD;&#xA;out_ManifestRowCount = manifestRowCount;" ContinueOnError="{x:Null}" DisplayName="02 - Load Successful Hashes" sap:VirtualizedContainerService.HintSize="450,197" sap2010:WorkflowViewState.IdRef="InvokeCode_2" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_ManifestPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">
+            <CSharpValue.Result>
+              <OutArgument x:TypeArguments="x:String" />
+            </CSharpValue.Result>in_ManifestPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="scg:HashSet(x:String)" x:Key="out_ProcessedHashes">
+          <CSharpReference x:TypeArguments="scg:HashSet(x:String)" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">
+            <CSharpReference.Result>
+              <OutArgument x:TypeArguments="Location(scg:HashSet(x:String))" />
+            </CSharpReference.Result>out_ProcessedHashes</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_ManifestRowCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">
+            <CSharpReference.Result>
+              <OutArgument x:TypeArguments="Location(x:Int32)" />
+            </CSharpReference.Result>out_ManifestRowCount</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode Code="out_Message =&#xA;    &quot;Processed-source manifest loaded. &quot; +&#xA;    out_ManifestRowCount.ToString() +&#xA;    &quot; row(s) read; &quot; +&#xA;    out_ProcessedHashes.Count.ToString() +&#xA;    &quot; successful unique file hash(es) are currently known.&quot;;" ContinueOnError="{x:Null}" DisplayName="03 - Build Manifest Message" sap:VirtualizedContainerService.HintSize="450,188" sap2010:WorkflowViewState.IdRef="InvokeCode_3" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:HashSet(x:String)" x:Key="out_ProcessedHashes">
+          <CSharpValue x:TypeArguments="scg:HashSet(x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">
+            <CSharpValue.Result>
+              <OutArgument x:TypeArguments="scg:HashSet(x:String)" />
+            </CSharpValue.Result>out_ProcessedHashes</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_ManifestRowCount">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">
+            <CSharpValue.Result>
+              <OutArgument x:TypeArguments="x:Int32" />
+            </CSharpValue.Result>out_ManifestRowCount</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">
+            <CSharpReference.Result>
+              <OutArgument x:TypeArguments="Location(x:String)" />
+            </CSharpReference.Result>out_Message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

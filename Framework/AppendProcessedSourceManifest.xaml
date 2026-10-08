@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Activity
+    x:Class="AppendProcessedSourceManifest"
+    mc:Ignorable="sap sap2010"
+    mva:VisualBasic.Settings="{x:Null}"
+    sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#"
+    xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+    xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+    xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+    xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+    xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+    xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib"
+    xmlns:ui="http://schemas.uipath.com/workflow/activities"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <x:Members>
+    <x:Property Name="in_ManifestPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_FileHash" Type="InArgument(x:String)" />
+    <x:Property Name="in_SourceFileName" Type="InArgument(x:String)" />
+    <x:Property Name="in_ReportDate" Type="InArgument(s:DateTime)" />
+    <x:Property Name="in_ProcessedDateTime" Type="InArgument(s:DateTime)" />
+    <x:Property Name="in_TransactionCount" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_Status" Type="InArgument(x:String)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Text</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Text.Encoding.Extensions</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+
+  <Sequence DisplayName="Append Processed Source Manifest">
+
+    <ui:Comment
+        DisplayName="Purpose"
+        Text="Append one processed source-PDF result to ProcessedSourceManifest.csv, creating the CSV header when the manifest is new." />
+
+    <ui:InvokeCode
+        DisplayName="01 - Validate Inputs"
+        Language="CSharp"
+        Code="if (string.IsNullOrWhiteSpace(in_ManifestPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Manifest path cannot be blank.&quot;,&#xA;        &quot;in_ManifestPath&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_FileHash))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;File hash cannot be blank.&quot;,&#xA;        &quot;in_FileHash&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_SourceFileName))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Source file name cannot be blank.&quot;,&#xA;        &quot;in_SourceFileName&quot;);&#xA;}&#xA;&#xA;if (in_TransactionCount &lt; 0)&#xA;{&#xA;    throw new System.ArgumentOutOfRangeException(&#xA;        &quot;in_TransactionCount&quot;,&#xA;        &quot;Transaction count cannot be negative.&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_Status))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Status cannot be blank.&quot;,&#xA;        &quot;in_Status&quot;);&#xA;}">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_ManifestPath">
+            <CSharpValue x:TypeArguments="x:String">in_ManifestPath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_FileHash">
+            <CSharpValue x:TypeArguments="x:String">in_FileHash</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_SourceFileName">
+            <CSharpValue x:TypeArguments="x:String">in_SourceFileName</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_TransactionCount">
+            <CSharpValue x:TypeArguments="x:Int32">in_TransactionCount</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Status">
+            <CSharpValue x:TypeArguments="x:String">in_Status</CSharpValue>
+          </InArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+    <ui:InvokeCode
+        DisplayName="02 - Append Manifest Row"
+        Language="CSharp"
+        Code="string manifestDirectory =&#xA;    System.IO.Path.GetDirectoryName(in_ManifestPath);&#xA;&#xA;if (!string.IsNullOrWhiteSpace(manifestDirectory))&#xA;{&#xA;    System.IO.Directory.CreateDirectory(manifestDirectory);&#xA;}&#xA;&#xA;bool writeHeader =&#xA;    !System.IO.File.Exists(in_ManifestPath) ||&#xA;    new System.IO.FileInfo(in_ManifestPath).Length == 0;&#xA;&#xA;System.Func&lt;string, string&gt; csv =&#xA;    value =&gt;&#xA;    {&#xA;        string safeValue =&#xA;            value ?? string.Empty;&#xA;&#xA;        return &quot;\&quot;&quot; +&#xA;               safeValue.Replace(&quot;\&quot;&quot;, &quot;\&quot;\&quot;&quot;) +&#xA;               &quot;\&quot;&quot;;&#xA;    };&#xA;&#xA;System.Text.StringBuilder builder =&#xA;    new System.Text.StringBuilder();&#xA;&#xA;if (writeHeader)&#xA;{&#xA;    builder.AppendLine(&#xA;        &quot;FileHash,SourceFileName,ReportDate,ProcessedDateTime,TransactionCount,Status&quot;);&#xA;}&#xA;&#xA;builder.Append(&#xA;    csv(in_FileHash));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(&#xA;    csv(in_SourceFileName));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(&#xA;    csv(in_ReportDate.ToString(&quot;yyyy-MM-dd&quot;)));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(&#xA;    csv(in_ProcessedDateTime.ToString(&quot;yyyy-MM-dd HH:mm:ss&quot;)));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(&#xA;    csv(in_TransactionCount.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.AppendLine(&#xA;    csv(in_Status));&#xA;&#xA;System.IO.File.AppendAllText(&#xA;    in_ManifestPath,&#xA;    builder.ToString(),&#xA;    new System.Text.UTF8Encoding(false));">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_ManifestPath">
+            <CSharpValue x:TypeArguments="x:String">in_ManifestPath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_FileHash">
+            <CSharpValue x:TypeArguments="x:String">in_FileHash</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_SourceFileName">
+            <CSharpValue x:TypeArguments="x:String">in_SourceFileName</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="s:DateTime" x:Key="in_ReportDate">
+            <CSharpValue x:TypeArguments="s:DateTime">in_ReportDate</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="s:DateTime" x:Key="in_ProcessedDateTime">
+            <CSharpValue x:TypeArguments="s:DateTime">in_ProcessedDateTime</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_TransactionCount">
+            <CSharpValue x:TypeArguments="x:Int32">in_TransactionCount</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Status">
+            <CSharpValue x:TypeArguments="x:String">in_Status</CSharpValue>
+          </InArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+    <ui:InvokeCode
+        DisplayName="03 - Build Manifest Update Message"
+        Language="CSharp"
+        Code="out_Message =&#xA;    &quot;Processed-source manifest updated for &quot; +&#xA;    in_SourceFileName +&#xA;    &quot; with status &quot; +&#xA;    in_Status +&#xA;    &quot; and &quot; +&#xA;    in_TransactionCount.ToString() +&#xA;    &quot; transaction(s).&quot;;">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_SourceFileName">
+            <CSharpValue x:TypeArguments="x:String">in_SourceFileName</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_TransactionCount">
+            <CSharpValue x:TypeArguments="x:Int32">in_TransactionCount</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Status">
+            <CSharpValue x:TypeArguments="x:String">in_Status</CSharpValue>
+          </InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+            <CSharpReference x:TypeArguments="x:String">out_Message</CSharpReference>
+          </OutArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+  </Sequence>
+</Activity>

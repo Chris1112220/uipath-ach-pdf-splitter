@@ -1,0 +1,102 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="GetCandidateSourcePdfs" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:String))" />
+    <x:Property Name="in_SourceFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_RunDateTime" Type="InArgument(s:DateTime)" />
+    <x:Property Name="out_CandidateFiles" Type="OutArgument(scg:List(x:String))" />
+    <x:Property Name="out_MatchedFileCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_DeferredFileCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:ExpressionActivityEditor.ExpressionActivityEditor>C#</sap2010:ExpressionActivityEditor.ExpressionActivityEditor>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Get Candidate Source PDFs" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment DisplayName="Purpose" sap2010:WorkflowViewState.IdRef="Comment_1" Text="Scan the resolved source folder for files matching SourceFilePattern and return only files old enough to be considered stable for processing." />
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="if (in_Config == null)&#xA;{&#xA;    throw new System.ArgumentNullException(&#xA;        &quot;in_Config&quot;,&#xA;        &quot;Configuration dictionary cannot be null.&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_SourceFolderPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Source folder path cannot be blank.&quot;,&#xA;        &quot;in_SourceFolderPath&quot;);&#xA;}&#xA;&#xA;if (!System.IO.Directory.Exists(in_SourceFolderPath))&#xA;{&#xA;    throw new System.IO.DirectoryNotFoundException(&#xA;        &quot;The source folder was not found: &quot; + in_SourceFolderPath);&#xA;}&#xA;&#xA;if (!in_Config.ContainsKey(&quot;SourceFilePattern&quot;))&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;Configuration key 'SourceFilePattern' is required.&quot;);&#xA;}&#xA;&#xA;if (!in_Config.ContainsKey(&quot;FileStableMinutes&quot;))&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;Configuration key 'FileStableMinutes' is required.&quot;);&#xA;}&#xA;&#xA;if (!int.TryParse(&#xA;        in_Config[&quot;FileStableMinutes&quot;],&#xA;        out int fileStableMinutes) ||&#xA;    fileStableMinutes &lt; 0 ||&#xA;    fileStableMinutes &gt; 120)&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;FileStableMinutes must be a whole number from 0 through 120.&quot;);&#xA;}" DisplayName="01 - Validate Inputs" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">in_SourceFolderPath</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="string sourceFilePattern =&#xA;    in_Config[&quot;SourceFilePattern&quot;];&#xA;&#xA;int fileStableMinutes =&#xA;    int.Parse(in_Config[&quot;FileStableMinutes&quot;]);&#xA;&#xA;string[] matchedFiles =&#xA;    System.IO.Directory.GetFiles(&#xA;        in_SourceFolderPath,&#xA;        sourceFilePattern,&#xA;        System.IO.SearchOption.TopDirectoryOnly);&#xA;&#xA;System.Array.Sort(&#xA;    matchedFiles,&#xA;    System.StringComparer.OrdinalIgnoreCase);&#xA;&#xA;System.Collections.Generic.List&lt;string&gt; candidateFiles =&#xA;    new System.Collections.Generic.List&lt;string&gt;();&#xA;&#xA;int deferredFileCount = 0;&#xA;&#xA;foreach (string filePath in matchedFiles)&#xA;{&#xA;    System.DateTime lastWriteTime =&#xA;        System.IO.File.GetLastWriteTime(filePath);&#xA;&#xA;    System.TimeSpan fileAge =&#xA;        in_RunDateTime - lastWriteTime;&#xA;&#xA;    if (fileAge &gt;= System.TimeSpan.FromMinutes(fileStableMinutes))&#xA;    {&#xA;        candidateFiles.Add(filePath);&#xA;    }&#xA;    else&#xA;    {&#xA;        deferredFileCount++;&#xA;    }&#xA;}&#xA;&#xA;out_CandidateFiles = candidateFiles;&#xA;out_MatchedFileCount = matchedFiles.Length;&#xA;out_DeferredFileCount = deferredFileCount;" DisplayName="02 - Scan and Filter Stable Files" sap2010:WorkflowViewState.IdRef="InvokeCode_2" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">in_SourceFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDateTime">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">in_RunDateTime</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="scg:List(x:String)" x:Key="out_CandidateFiles">
+          <CSharpReference x:TypeArguments="scg:List(x:String)" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">out_CandidateFiles</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_MatchedFileCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">out_MatchedFileCount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_DeferredFileCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">out_DeferredFileCount</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="out_Message =&#xA;    &quot;Source scan complete. &quot; +&#xA;    out_MatchedFileCount.ToString() +&#xA;    &quot; file(s) matched the configured pattern; &quot; +&#xA;    out_CandidateFiles.Count.ToString() +&#xA;    &quot; file(s) are stable and ready; &quot; +&#xA;    out_DeferredFileCount.ToString() +&#xA;    &quot; file(s) were deferred because they may still be copying.&quot;;" DisplayName="03 - Build Scan Message" sap2010:WorkflowViewState.IdRef="InvokeCode_3" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:List(x:String)" x:Key="out_CandidateFiles">
+          <CSharpValue x:TypeArguments="scg:List(x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">out_CandidateFiles</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_MatchedFileCount">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">out_MatchedFileCount</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="out_DeferredFileCount">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">out_DeferredFileCount</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">out_Message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>
