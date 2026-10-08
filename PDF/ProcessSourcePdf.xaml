@@ -1,0 +1,452 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="ProcessSourcePdf" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:upap="clr-namespace:UiPath.PDF.Activities.PDF;assembly=UiPath.PDF.Activities" xmlns:upr="clr-namespace:UiPath.Platform.ResourceHandling;assembly=UiPath.Platform" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:String))" />
+    <x:Property Name="in_SourcePdfPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_BreakdownFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="out_ReportDate" Type="OutArgument(s:DateTime)" />
+    <x:Property Name="out_OutputFolderPath" Type="OutArgument(x:String)" />
+    <x:Property Name="out_TransactionCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:ExpressionActivityEditor.ExpressionActivityEditor>C#</sap2010:ExpressionActivityEditor.ExpressionActivityEditor>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Text.RegularExpressions</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.PDF.Activities</x:String>
+      <x:String>UiPath.PDF.Activities.PDF</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+      <x:String>System.Linq.Expressions</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Numerics</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Text.RegularExpressions</AssemblyReference>
+      <AssemblyReference>UiPath.PDF.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>System.Memory.Data</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities.Design</AssemblyReference>
+      <AssemblyReference>System.Console</AssemblyReference>
+      <AssemblyReference>System.Security.Permissions</AssemblyReference>
+      <AssemblyReference>System.Configuration.ConfigurationManager</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>NPOI.Core</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Linq.Async</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.Linq.Expressions</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+      <AssemblyReference>System.Collections.NonGeneric</AssemblyReference>
+      <AssemblyReference>System.Runtime.Numerics</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Process Source PDF" sap:VirtualizedContainerService.HintSize="1393,3860" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:Int32" Name="pageCount" />
+      <Variable x:TypeArguments="x:Int32" Name="pageNumber" />
+      <Variable x:TypeArguments="x:Int32" Name="transactionStartPage" />
+      <Variable x:TypeArguments="x:Int32" Name="transactionIndex" />
+      <Variable x:TypeArguments="x:Int32" Name="transactionCount" />
+      <Variable x:TypeArguments="x:String" Name="pageText" />
+      <Variable x:TypeArguments="x:String" Name="transactionText" />
+      <Variable x:TypeArguments="x:String" Name="companyName" />
+      <Variable x:TypeArguments="x:String" Name="amountText" />
+      <Variable x:TypeArguments="x:String" Name="pageRange" />
+      <Variable x:TypeArguments="x:String" Name="outputPath" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment DisplayName="Purpose" sap:VirtualizedContainerService.HintSize="594,147" sap2010:WorkflowViewState.IdRef="Comment_1" Text="Read a combined bank ACH payment-notification report page by page, accumulate pages until END OF TRANSACTION, parse originator/amount, and extract one PDF per transaction." />
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="if (in_Config == null)&#xA;{&#xA;    throw new System.ArgumentNullException(&#xA;        &quot;in_Config&quot;,&#xA;        &quot;Configuration dictionary cannot be null.&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_SourcePdfPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Source PDF path cannot be blank.&quot;,&#xA;        &quot;in_SourcePdfPath&quot;);&#xA;}&#xA;&#xA;if (!System.IO.File.Exists(in_SourcePdfPath))&#xA;{&#xA;    throw new System.IO.FileNotFoundException(&#xA;        &quot;Source PDF was not found.&quot;,&#xA;        in_SourcePdfPath);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_BreakdownFolderPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Breakdown folder path cannot be blank.&quot;,&#xA;        &quot;in_BreakdownFolderPath&quot;);&#xA;}&#xA;&#xA;if (!in_Config.ContainsKey(&quot;DailyOutputFolderDateFormat&quot;) ||&#xA;    !in_Config.ContainsKey(&quot;OutputFileNameFormat&quot;))&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;DailyOutputFolderDateFormat and OutputFileNameFormat are required configuration settings.&quot;);&#xA;}" DisplayName="01 - Validate Inputs" sap:VirtualizedContainerService.HintSize="594,197" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourcePdfPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">in_SourcePdfPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">in_BreakdownFolderPath</CSharpValue>
+        </InArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="string sourceFileName =&#xA;    System.IO.Path.GetFileNameWithoutExtension(in_SourcePdfPath);&#xA;&#xA;System.Text.RegularExpressions.Match dateMatch =&#xA;    System.Text.RegularExpressions.Regex.Match(&#xA;        sourceFileName,&#xA;        @&quot;(?&lt;!\d)(?&lt;date&gt;\d{8})(?!\d)&quot;);&#xA;&#xA;if (!dateMatch.Success)&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;Unable to determine the report date from source filename: &quot; +&#xA;        sourceFileName);&#xA;}&#xA;&#xA;System.DateTime reportDate;&#xA;&#xA;if (!System.DateTime.TryParseExact(&#xA;        dateMatch.Groups[&quot;date&quot;].Value,&#xA;        &quot;yyyyMMdd&quot;,&#xA;        System.Globalization.CultureInfo.InvariantCulture,&#xA;        System.Globalization.DateTimeStyles.None,&#xA;        out reportDate))&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;The source filename contains an invalid yyyyMMdd report date: &quot; +&#xA;        sourceFileName);&#xA;}&#xA;&#xA;string dailyFolderName =&#xA;    reportDate.ToString(&#xA;        in_Config[&quot;DailyOutputFolderDateFormat&quot;],&#xA;        System.Globalization.CultureInfo.InvariantCulture);&#xA;&#xA;string outputFolderPath =&#xA;    System.IO.Path.Combine(&#xA;        in_BreakdownFolderPath,&#xA;        dailyFolderName);&#xA;&#xA;System.IO.Directory.CreateDirectory(outputFolderPath);&#xA;&#xA;out_ReportDate = reportDate;&#xA;out_OutputFolderPath = outputFolderPath;" DisplayName="02 - Resolve Report Date and Output Folder" sap:VirtualizedContainerService.HintSize="594,197" sap2010:WorkflowViewState.IdRef="InvokeCode_2" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">in_Config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourcePdfPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">in_SourcePdfPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">in_BreakdownFolderPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="s:DateTime" x:Key="out_ReportDate">
+          <CSharpReference x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">out_ReportDate</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_OutputFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">out_OutputFolderPath</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+    <upap:GetPDFPageCount FileName="{x:Reference __ReferenceID0}" ResourceFile="{x:Null}" DisplayName="Get PDF Page Count" sap:VirtualizedContainerService.HintSize="594,124" sap2010:WorkflowViewState.IdRef="GetPDFPageCount_1">
+      <upap:GetPDFPageCount.Item>
+        <upap:ItemArgument x:TypeArguments="upr:IResource" ResourceFile="{x:Null}">
+          <upap:ItemArgument.FileName>
+            <InArgument x:TypeArguments="x:String" x:Name="__ReferenceID0">
+              <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_21">in_SourcePdfPath</CSharpValue>
+            </InArgument>
+          </upap:ItemArgument.FileName>
+        </upap:ItemArgument>
+      </upap:GetPDFPageCount.Item>
+      <upap:GetPDFPageCount.PageCount>
+        <OutArgument x:TypeArguments="x:Int32">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_18">pageCount</CSharpReference>
+        </OutArgument>
+      </upap:GetPDFPageCount.PageCount>
+    </upap:GetPDFPageCount>
+    <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="532,123" sap2010:WorkflowViewState.IdRef="WriteLine_1">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_32">"DEBUG - Page count = " + pageCount.ToString()</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <Assign DisplayName="04 - Initialize Page Number" sap:VirtualizedContainerService.HintSize="532,175" sap2010:WorkflowViewState.IdRef="Assign_1">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Int32">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">pageNumber</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Int32">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">1</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="05 - Initialize Transaction Start" sap:VirtualizedContainerService.HintSize="532,175" sap2010:WorkflowViewState.IdRef="Assign_2">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Int32">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">transactionStartPage</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Int32">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">1</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="06 - Initialize Transaction Index" sap:VirtualizedContainerService.HintSize="594,175" sap2010:WorkflowViewState.IdRef="Assign_3">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Int32">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_5">transactionIndex</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Int32">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">1</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="07 - Initialize Transaction Buffer" sap:VirtualizedContainerService.HintSize="594,175" sap2010:WorkflowViewState.IdRef="Assign_4">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_6">transactionText</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">string.Empty</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <While DisplayName="08 - Read Pages and Split Transactions" sap:VirtualizedContainerService.HintSize="594,2161" sap2010:WorkflowViewState.IdRef="While_1">
+      <While.Condition>
+        <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">pageNumber &lt;= pageCount</CSharpValue>
+      </While.Condition>
+      <Sequence DisplayName="Process Current Page" sap:VirtualizedContainerService.HintSize="548,1967" sap2010:WorkflowViewState.IdRef="Sequence_2">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+        <ui:ReadPDFText FileName="{x:Reference __ReferenceID1}" PreserveFormatting="{x:Null}" ResourceFile="{x:Null}" DisplayName="08.1 - Read Current PDF Page" sap:VirtualizedContainerService.HintSize="514,124" sap2010:WorkflowViewState.IdRef="ReadPDFText_1">
+          <ui:ReadPDFText.Item>
+            <upap:ItemArgument x:TypeArguments="upr:IResource" ResourceFile="{x:Null}">
+              <upap:ItemArgument.FileName>
+                <InArgument x:TypeArguments="x:String" x:Name="__ReferenceID1">
+                  <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">in_SourcePdfPath</CSharpValue>
+                </InArgument>
+              </upap:ItemArgument.FileName>
+            </upap:ItemArgument>
+          </ui:ReadPDFText.Item>
+          <ui:ReadPDFText.Range>
+            <InArgument x:TypeArguments="x:String">
+              <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">pageNumber.ToString()</CSharpValue>
+            </InArgument>
+          </ui:ReadPDFText.Range>
+          <ui:ReadPDFText.Text>
+            <OutArgument x:TypeArguments="x:String">
+              <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_7">pageText</CSharpReference>
+            </OutArgument>
+          </ui:ReadPDFText.Text>
+        </ui:ReadPDFText>
+        <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="514,123" sap2010:WorkflowViewState.IdRef="WriteLine_2">
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_33" xml:space="preserve">"DEBUG - Page " +
+pageNumber.ToString() +
+"; Characters = " +
+(pageText == null ? "NULL" : pageText.Length.ToString()) +
+"; End marker = " +
+((pageText ?? string.Empty).Contains("END OF TRANSACTION")).ToString()</CSharpValue>
+          </InArgument>
+        </WriteLine>
+        <If sap:VirtualizedContainerService.HintSize="514,455" sap2010:WorkflowViewState.IdRef="If_1">
+          <If.Condition>
+            <InArgument x:TypeArguments="x:Boolean">
+              <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_22">string.IsNullOrWhiteSpace(transactionText)</CSharpValue>
+            </InArgument>
+          </If.Condition>
+          <If.Then>
+            <Sequence DisplayName="Then" sap:VirtualizedContainerService.HintSize="450,226" sap2010:WorkflowViewState.IdRef="Sequence_3">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <Assign sap:VirtualizedContainerService.HintSize="416,166" sap2010:WorkflowViewState.IdRef="Assign_7">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:Int32">
+                    <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_12">transactionStartPage</CSharpReference>
+                  </OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:Int32">
+                    <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_23">pageNumber</CSharpValue>
+                  </InArgument>
+                </Assign.Value>
+              </Assign>
+            </Sequence>
+          </If.Then>
+          <If.Else>
+            <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="450,90" sap2010:WorkflowViewState.IdRef="Sequence_4">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+            </Sequence>
+          </If.Else>
+        </If>
+        <Assign DisplayName="08.3 - Append Page Text to Transaction Buffer" sap:VirtualizedContainerService.HintSize="514,175" sap2010:WorkflowViewState.IdRef="Assign_5">
+          <Assign.To>
+            <OutArgument x:TypeArguments="x:String">
+              <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_8">transactionText</CSharpReference>
+            </OutArgument>
+          </Assign.To>
+          <Assign.Value>
+            <InArgument x:TypeArguments="x:String">
+              <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_14">transactionText + Environment.NewLine + (pageText ?? string.Empty)</CSharpValue>
+            </InArgument>
+          </Assign.Value>
+        </Assign>
+        <If sap:VirtualizedContainerService.HintSize="514,864" sap2010:WorkflowViewState.IdRef="If_2">
+          <If.Condition>
+            <InArgument x:TypeArguments="x:Boolean">
+              <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_24">transactionText.Contains("END OF TRANSACTION")</CSharpValue>
+            </InArgument>
+          </If.Condition>
+          <If.Then>
+            <Sequence DisplayName="Then" sap:VirtualizedContainerService.HintSize="512,635" sap2010:WorkflowViewState.IdRef="Sequence_5">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:InvokeCode ContinueOnError="{x:Null}" Code="System.Text.RegularExpressions.Match companyMatch =&#xA;    System.Text.RegularExpressions.Regex.Match(&#xA;        in_TransactionText,&#xA;        @&quot;(?ims)ORIGINATOR INFORMATION.*?Company Name\s*:\s*(.+?)(?=(?:\s+Company Name\s*:\s*|\s+Identification\s*:))&quot;);&#xA;&#xA;if (!companyMatch.Success)&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;Unable to parse originator Company Name from transaction pages &quot; +&#xA;        in_StartPage.ToString() +&#xA;        &quot;-&quot; +&#xA;        in_EndPage.ToString() +&#xA;        &quot;.&quot;);&#xA;}&#xA;&#xA;string companyName =&#xA;    System.Text.RegularExpressions.Regex.Replace(&#xA;        companyMatch.Groups[1].Value,&#xA;        @&quot;\s+&quot;,&#xA;        &quot; &quot;).Trim();&#xA;&#xA;System.Text.RegularExpressions.Match amountMatch =&#xA;    System.Text.RegularExpressions.Regex.Match(&#xA;        in_TransactionText,&#xA;        @&quot;(?im)^\s*Amount\s*:\s*(\$[\d,]+\.\d{2})\s*(?:CR|DB|DR)?&quot;);&#xA;&#xA;if (!amountMatch.Success)&#xA;{&#xA;    amountMatch =&#xA;        System.Text.RegularExpressions.Regex.Match(&#xA;            in_TransactionText,&#xA;            @&quot;Amount\s*:\s*(\$[\d,]+\.\d{2})&quot;);&#xA;}&#xA;&#xA;if (!amountMatch.Success)&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;Unable to parse Amount from transaction pages &quot; +&#xA;        in_StartPage.ToString() +&#xA;        &quot;-&quot; +&#xA;        in_EndPage.ToString() +&#xA;        &quot;.&quot;);&#xA;}&#xA;&#xA;string amountText =&#xA;    amountMatch.Groups[1].Value.Trim();&#xA;&#xA;foreach (char invalidChar in System.IO.Path.GetInvalidFileNameChars())&#xA;{&#xA;    companyName = companyName.Replace(invalidChar, ' ');&#xA;}&#xA;&#xA;companyName =&#xA;    System.Text.RegularExpressions.Regex.Replace(&#xA;        companyName,&#xA;        @&quot;\s+&quot;,&#xA;        &quot; &quot;).Trim().Trim('.');&#xA;&#xA;if (string.IsNullOrWhiteSpace(companyName))&#xA;{&#xA;    companyName = &quot;Unknown Company&quot;;&#xA;}&#xA;&#xA;if (companyName.Length &gt; 80)&#xA;{&#xA;    companyName = companyName.Substring(0, 80).Trim();&#xA;}&#xA;&#xA;string pageRange =&#xA;    in_StartPage == in_EndPage&#xA;        ? in_StartPage.ToString()&#xA;        : in_StartPage.ToString() + &quot;-&quot; + in_EndPage.ToString();&#xA;&#xA;string outputFileName =&#xA;    in_Config[&quot;OutputFileNameFormat&quot;]&#xA;        .Replace(&quot;{Index:000}&quot;, in_Index.ToString(&quot;000&quot;))&#xA;        .Replace(&quot;{Company}&quot;, companyName)&#xA;        .Replace(&quot;{Amount}&quot;, amountText);&#xA;&#xA;if (!outputFileName.EndsWith(&#xA;        &quot;.pdf&quot;,&#xA;        System.StringComparison.OrdinalIgnoreCase))&#xA;{&#xA;    outputFileName += &quot;.pdf&quot;;&#xA;}&#xA;&#xA;string outputPath =&#xA;    System.IO.Path.Combine(&#xA;        in_OutputFolderPath,&#xA;        outputFileName);&#xA;&#xA;if (System.IO.File.Exists(outputPath))&#xA;{&#xA;    System.IO.File.Delete(outputPath);&#xA;}&#xA;&#xA;out_CompanyName = companyName;&#xA;out_AmountText = amountText;&#xA;out_PageRange = pageRange;&#xA;out_OutputPath = outputPath;" DisplayName="Invoke Code" sap:VirtualizedContainerService.HintSize="478,197" sap2010:WorkflowViewState.IdRef="InvokeCode_4" Language="CSharp">
+                <ui:InvokeCode.Arguments>
+                  <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+                    <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_29">in_Config</CSharpValue>
+                  </InArgument>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_TransactionText">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_28">transactionText</CSharpValue>
+                  </InArgument>
+                  <InArgument x:TypeArguments="x:Int32" x:Key="in_StartPage">
+                    <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_27">transactionStartPage</CSharpValue>
+                  </InArgument>
+                  <InArgument x:TypeArguments="x:Int32" x:Key="in_EndPage">
+                    <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_26">pageNumber</CSharpValue>
+                  </InArgument>
+                  <InArgument x:TypeArguments="x:Int32" x:Key="in_Index">
+                    <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_30">transactionIndex</CSharpValue>
+                  </InArgument>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_OutputFolderPath">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_31">out_OutputFolderPath</CSharpValue>
+                  </InArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="out_CompanyName">
+                    <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_14">companyName</CSharpReference>
+                  </OutArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="out_AmountText">
+                    <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_15">amountText</CSharpReference>
+                  </OutArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="out_PageRange">
+                    <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_16">pageRange</CSharpReference>
+                  </OutArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="out_OutputPath">
+                    <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_17">outputPath</CSharpReference>
+                  </OutArgument>
+                </ui:InvokeCode.Arguments>
+              </ui:InvokeCode>
+              <upap:ExtractPDFPageRange FileName="{x:Reference __ReferenceID2}" OutputFile="{x:Null}" ResourceFile="{x:Null}" DisplayName="Extract PDF Page Range" sap:VirtualizedContainerService.HintSize="478,176" sap2010:WorkflowViewState.IdRef="ExtractPDFPageRange_1">
+                <upap:ExtractPDFPageRange.Item>
+                  <upap:ItemArgument x:TypeArguments="upr:IResource" ResourceFile="{x:Null}">
+                    <upap:ItemArgument.FileName>
+                      <InArgument x:TypeArguments="x:String" x:Name="__ReferenceID2">
+                        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_39">in_SourcePdfPath</CSharpValue>
+                      </InArgument>
+                    </upap:ItemArgument.FileName>
+                  </upap:ItemArgument>
+                </upap:ExtractPDFPageRange.Item>
+                <upap:ExtractPDFPageRange.OutputFileName>
+                  <InArgument x:TypeArguments="x:String">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_41">outputPath</CSharpValue>
+                  </InArgument>
+                </upap:ExtractPDFPageRange.OutputFileName>
+                <upap:ExtractPDFPageRange.Range>
+                  <InArgument x:TypeArguments="x:String">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_40">pageRange</CSharpValue>
+                  </InArgument>
+                </upap:ExtractPDFPageRange.Range>
+              </upap:ExtractPDFPageRange>
+              <ui:MultipleAssign DisplayName="Multiple Assign" sap:VirtualizedContainerService.HintSize="478,202" sap2010:WorkflowViewState.IdRef="MultipleAssign_1">
+                <ui:MultipleAssign.AssignOperations>
+                  <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_1">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_19">transactionCount</CSharpReference>
+                        </OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_36">transactionCount + 1</CSharpValue>
+                        </InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_2">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:Int32">
+                          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_20">transactionIndex</CSharpReference>
+                        </OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:Int32">
+                          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_37">transactionIndex + 1</CSharpValue>
+                        </InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_3">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:String">
+                          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_21">transactionText</CSharpReference>
+                        </OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:String">
+                          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_38">string.Empty</CSharpValue>
+                        </InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                  </scg:List>
+                </ui:MultipleAssign.AssignOperations>
+              </ui:MultipleAssign>
+            </Sequence>
+          </If.Then>
+          <If.Else>
+            <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="512,90" sap2010:WorkflowViewState.IdRef="Sequence_6">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+            </Sequence>
+          </If.Else>
+        </If>
+        <Assign DisplayName="08.5 - Advance Page Number" sap:VirtualizedContainerService.HintSize="514,166" sap2010:WorkflowViewState.IdRef="Assign_6">
+          <Assign.To>
+            <OutArgument x:TypeArguments="x:Int32">
+              <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_9">pageNumber</CSharpReference>
+            </OutArgument>
+          </Assign.To>
+          <Assign.Value>
+            <InArgument x:TypeArguments="x:Int32">
+              <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_15">pageNumber + 1</CSharpValue>
+            </InArgument>
+          </Assign.Value>
+        </Assign>
+      </Sequence>
+    </While>
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="if (!string.IsNullOrWhiteSpace(transactionText))&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;The PDF ended with an incomplete transaction. &quot; +&#xA;        &quot;No END OF TRANSACTION marker was found for pages beginning at &quot; +&#xA;        transactionStartPage.ToString() +&#xA;        &quot;.&quot;);&#xA;}&#xA;if (transactionCount == 0)&#xA;{&#xA;    throw new System.InvalidOperationException(&#xA;        &quot;No transactions were created from &quot; +&#xA;        System.IO.Path.GetFileName(in_SourcePdfPath) +&#xA;        &quot;. The PDF opened, but no transactions were successfully detected.&quot;);&#xA;}&#xA;out_TransactionCount = transactionCount;&#xA;&#xA;out_Message =&#xA;    &quot;Processed &quot; +&#xA;    System.IO.Path.GetFileName(in_SourcePdfPath) +&#xA;    &quot;. Created &quot; +&#xA;    transactionCount.ToString() +&#xA;    &quot; transaction PDF(s) in &quot; +&#xA;    out_OutputFolderPath +&#xA;    &quot;.&quot;;" DisplayName="09 - Validate Completion and Build Message" sap:VirtualizedContainerService.HintSize="594,188" sap2010:WorkflowViewState.IdRef="InvokeCode_3" Language="CSharp">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="transactionText">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_16">transactionText</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="transactionStartPage">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_17">transactionStartPage</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="transactionCount">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_18">transactionCount</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourcePdfPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_19">in_SourcePdfPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="out_OutputFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_20">out_OutputFolderPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_TransactionCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_10">out_TransactionCount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_11">out_Message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+  </Sequence>
+</Activity>

@@ -1,0 +1,533 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" VisualBasic.Settings="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="ACH PDF Splitter - Main" sap2010:WorkflowViewState.IdRef="Sequence_4">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="configPath" />
+      <Variable x:TypeArguments="scg:Dictionary(x:String, x:String)" Name="config" />
+      <Variable x:TypeArguments="s:DateTime" Name="runDateTime" />
+      <Variable x:TypeArguments="x:String" Name="runId" />
+      <Variable x:TypeArguments="s:DateTime" Name="runStartedAt" />
+      <Variable x:TypeArguments="s:DateTime" Name="runEndedAt" />
+      <Variable x:TypeArguments="x:String" Name="runBy" />
+      <Variable x:TypeArguments="x:Int32" Name="fiscalYearNumber" />
+      <Variable x:TypeArguments="x:Int32" Name="fiscalPeriod" />
+      <Variable x:TypeArguments="x:String" Name="monthName" />
+      <Variable x:TypeArguments="x:String" Name="fiscalYearFolderName" />
+      <Variable x:TypeArguments="x:String" Name="periodFolderName" />
+      <Variable x:TypeArguments="x:String" Name="sourceFolderPath" />
+      <Variable x:TypeArguments="x:String" Name="breakdownFolderPath" />
+      <Variable x:TypeArguments="x:String" Name="automationRootPath" />
+      <Variable x:TypeArguments="x:String" Name="stateFolderPath" />
+      <Variable x:TypeArguments="x:String" Name="logsFolderPath" />
+      <Variable x:TypeArguments="x:String" Name="reportingFolderPath" />
+      <Variable x:TypeArguments="x:String" Name="manifestPath" />
+      <Variable x:TypeArguments="x:String" Name="runLogPath" />
+      <Variable x:TypeArguments="x:String" Name="summaryWorkbookPath" />
+      <Variable x:TypeArguments="scg:HashSet(x:String)" Name="processedHashes" />
+      <Variable x:TypeArguments="x:Int32" Name="manifestRowCount" />
+      <Variable x:TypeArguments="scg:List(x:String)" Name="candidateFiles" />
+      <Variable x:TypeArguments="x:Int32" Name="matchedFileCount" />
+      <Variable x:TypeArguments="x:Int32" Name="deferredFileCount" />
+      <Variable x:TypeArguments="x:Int32" Name="sourcePdfsProcessed" />
+      <Variable x:TypeArguments="x:Int32" Name="sourcePdfsSkipped" />
+      <Variable x:TypeArguments="x:Int32" Name="splitPdfsCreated" />
+      <Variable x:TypeArguments="x:String" Name="fileHash" />
+      <Variable x:TypeArguments="x:Int32" Name="sourceTransactionCount" />
+      <Variable x:TypeArguments="s:DateTime" Name="sourceReportDate" />
+      <Variable x:TypeArguments="x:String" Name="sourceOutputFolderPath" />
+      <Variable x:TypeArguments="x:String" Name="status" />
+      <Variable x:TypeArguments="x:String" Name="notes" />
+      <Variable x:TypeArguments="x:Double" Name="durationMinutes" />
+      <Variable x:TypeArguments="x:String" Name="message" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:Comment DisplayName="Main Roadmap" sap2010:WorkflowViewState.IdRef="Comment_1" Text="1. Initialize run context. 2. Read config. 3. Resolve fiscal folders. 4. Ensure folder structure. 5. Load processed-file state. 6. Scan stable source PDFs. 7. Hash/skip/process each candidate. 8. Persist manifest and run log." />
+    <Assign DisplayName="01 - Capture Run DateTime" sap2010:WorkflowViewState.IdRef="Assign_1">
+      <Assign.To>
+        <OutArgument x:TypeArguments="s:DateTime">
+          <CSharpReference x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">runDateTime</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="s:DateTime">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">DateTime.Now</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="02 - Resolve Config Path" sap2010:WorkflowViewState.IdRef="Assign_2">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">configPath</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">System.IO.Path.GetFullPath(System.IO.Path.Combine(System.Environment.CurrentDirectory, "Config", "Config.xlsx"))</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="03 - Read Configuration" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="Framework\ReadConfiguration.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_ConfigPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">configPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="out_Config">
+          <CSharpReference x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">config</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_4">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <WriteLine DisplayName="Log - Configuration" sap2010:WorkflowViewState.IdRef="WriteLine_1">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="04 - Initialize Run" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2" UnSafe="False" WorkflowFileName="Framework\InitializeRun.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDateTime">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">runDateTime</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_RunId">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_5">runId</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="s:DateTime" x:Key="out_RunStartedAt">
+          <CSharpReference x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpReference`1_6">runStartedAt</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_7">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <Assign DisplayName="05 - Set Run User" sap2010:WorkflowViewState.IdRef="Assign_3">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_8">runBy</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">Environment.UserName</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <WriteLine DisplayName="Log - Run Initialized" sap2010:WorkflowViewState.IdRef="WriteLine_2">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="06 - Resolve Processing Period" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3" UnSafe="False" WorkflowFileName="Framework\ResolveProcessingPeriod.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDate">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">runDateTime</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_FiscalYearNumber">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_9">fiscalYearNumber</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_FiscalPeriod">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_10">fiscalPeriod</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_MonthName">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_11">monthName</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_FiscalYearFolderName">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_12">fiscalYearFolderName</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_PeriodFolderName">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_13">periodFolderName</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_SourceFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_14">sourceFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_BreakdownFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_15">breakdownFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_16">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <WriteLine DisplayName="Log - Processing Period" sap2010:WorkflowViewState.IdRef="WriteLine_3">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="07 - Ensure Folder Structure" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_4" UnSafe="False" WorkflowFileName="Framework\EnsureFolderStructure.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">sourceFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">breakdownFolderPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_AutomationRootPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_17">automationRootPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_StateFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_18">stateFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_LogsFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_19">logsFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_ReportingFolderPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_20">reportingFolderPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_ManifestPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_21">manifestPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_RunLogPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_22">runLogPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_SummaryWorkbookPath">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_23">summaryWorkbookPath</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_24">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <WriteLine DisplayName="Log - Folder Structure" sap2010:WorkflowViewState.IdRef="WriteLine_4">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_14">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="08 - Load Processed Source Manifest" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_5" UnSafe="False" WorkflowFileName="Framework\LoadProcessedSourceManifest.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_ManifestPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_15">manifestPath</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="scg:HashSet(x:String)" x:Key="out_ProcessedHashes">
+          <CSharpReference x:TypeArguments="scg:HashSet(x:String)" sap2010:WorkflowViewState.IdRef="CSharpReference`1_25">processedHashes</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_ManifestRowCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_26">manifestRowCount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_27">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <WriteLine DisplayName="Log - Manifest Loaded" sap2010:WorkflowViewState.IdRef="WriteLine_5">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_16">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="09 - Get Candidate Source PDFs" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_6" UnSafe="False" WorkflowFileName="Framework\GetCandidateSourcePdfs.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+          <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_17">config</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFolderPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_18">sourceFolderPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunDateTime">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_19">runDateTime</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="scg:List(x:String)" x:Key="out_CandidateFiles">
+          <CSharpReference x:TypeArguments="scg:List(x:String)" sap2010:WorkflowViewState.IdRef="CSharpReference`1_28">candidateFiles</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_MatchedFileCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_29">matchedFileCount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_DeferredFileCount">
+          <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_30">deferredFileCount</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_31">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <WriteLine DisplayName="Log - Source Scan" sap2010:WorkflowViewState.IdRef="WriteLine_6">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_20">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+    <ForEach x:TypeArguments="x:String" DisplayName="10 - Process Candidate PDFs" sap2010:WorkflowViewState.IdRef="ForEach`1_1">
+      <ForEach.Values>
+        <InArgument x:TypeArguments="scg:IEnumerable(x:String)">
+          <CSharpValue x:TypeArguments="scg:IEnumerable(x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_41">candidateFiles</CSharpValue>
+        </InArgument>
+      </ForEach.Values>
+      <ActivityAction x:TypeArguments="x:String">
+        <ActivityAction.Argument>
+          <DelegateInArgument x:TypeArguments="x:String" Name="sourcePdfPath" />
+        </ActivityAction.Argument>
+        <Sequence DisplayName="Process Candidate" sap2010:WorkflowViewState.IdRef="Sequence_3">
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="10.1 - Compute File Hash" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_7" UnSafe="False" WorkflowFileName="Framework\ComputeFileHash.xaml">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="in_FilePath">
+                <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_21">sourcePdfPath</CSharpValue>
+              </InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_HashAlgorithm">
+                <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_22">config["HashAlgorithm"]</CSharpValue>
+              </InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_FileHash">
+                <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_32">fileHash</CSharpReference>
+              </OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+                <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_33">message</CSharpReference>
+              </OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <If DisplayName="10.2 - Already Processed?" sap2010:WorkflowViewState.IdRef="If_1">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">
+                <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_23">processedHashes.Contains(fileHash)</CSharpValue>
+              </InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Skip Already Processed" sap2010:WorkflowViewState.IdRef="Sequence_1">
+                <Assign DisplayName="Increment Skipped Count" sap2010:WorkflowViewState.IdRef="Assign_4">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Int32">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_34">sourcePdfsSkipped</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Int32">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_24">sourcePdfsSkipped + 1</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <WriteLine DisplayName="Log - Already Processed" sap2010:WorkflowViewState.IdRef="WriteLine_7">
+                  <InArgument x:TypeArguments="x:String">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_25">"Skipping already-processed source PDF: " + System.IO.Path.GetFileName(sourcePdfPath)</CSharpValue>
+                  </InArgument>
+                </WriteLine>
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Sequence DisplayName="Process New Source PDF" sap2010:WorkflowViewState.IdRef="Sequence_2">
+                <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="10.2.1 - Process Source PDF" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_8" UnSafe="False" WorkflowFileName="PDF\ProcessSourcePdf.xaml">
+                  <ui:InvokeWorkflowFile.Arguments>
+                    <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_Config">
+                      <CSharpValue x:TypeArguments="scg:Dictionary(x:String, x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_26">config</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_SourcePdfPath">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_27">sourcePdfPath</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_BreakdownFolderPath">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_28">breakdownFolderPath</CSharpValue>
+                    </InArgument>
+                    <OutArgument x:TypeArguments="s:DateTime" x:Key="out_ReportDate">
+                      <CSharpReference x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpReference`1_35">sourceReportDate</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_OutputFolderPath">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_36">sourceOutputFolderPath</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:Int32" x:Key="out_TransactionCount">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_37">sourceTransactionCount</CSharpReference>
+                    </OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_38">message</CSharpReference>
+                    </OutArgument>
+                  </ui:InvokeWorkflowFile.Arguments>
+                </ui:InvokeWorkflowFile>
+                <WriteLine DisplayName="Log - PDF Processed" sap2010:WorkflowViewState.IdRef="WriteLine_8">
+                  <InArgument x:TypeArguments="x:String">
+                    <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_29">message</CSharpValue>
+                  </InArgument>
+                </WriteLine>
+                <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="10.2.2 - Append Processed Source Manifest" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_9" UnSafe="False" WorkflowFileName="Framework\AppendProcessedSourceManifest.xaml">
+                  <ui:InvokeWorkflowFile.Arguments>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_ManifestPath">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_30">manifestPath</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_FileHash">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_31">fileHash</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_SourceFileName">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_32">System.IO.Path.GetFileName(sourcePdfPath)</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="s:DateTime" x:Key="in_ReportDate">
+                      <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_33">sourceReportDate</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="s:DateTime" x:Key="in_ProcessedDateTime">
+                      <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_34">DateTime.Now</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:Int32" x:Key="in_TransactionCount">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_35">sourceTransactionCount</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_Status">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_36">"Success"</CSharpValue>
+                    </InArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_39">message</CSharpReference>
+                    </OutArgument>
+                  </ui:InvokeWorkflowFile.Arguments>
+                </ui:InvokeWorkflowFile>
+                <ui:InvokeCode ContinueOnError="{x:Null}" Code="processedHashes.Add(fileHash);" DisplayName="10.2.3 - Update In-Memory Processed Hashes" sap2010:WorkflowViewState.IdRef="InvokeCode_1" Language="CSharp">
+                  <ui:InvokeCode.Arguments>
+                    <InArgument x:TypeArguments="scg:HashSet(x:String)" x:Key="processedHashes">
+                      <CSharpValue x:TypeArguments="scg:HashSet(x:String)" sap2010:WorkflowViewState.IdRef="CSharpValue`1_37">processedHashes</CSharpValue>
+                    </InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="fileHash">
+                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_38">fileHash</CSharpValue>
+                    </InArgument>
+                  </ui:InvokeCode.Arguments>
+                </ui:InvokeCode>
+                <Assign DisplayName="10.2.4 - Increment Processed Source Count" sap2010:WorkflowViewState.IdRef="Assign_5">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Int32">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_40">sourcePdfsProcessed</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Int32">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_39">sourcePdfsProcessed + 1</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <Assign DisplayName="10.2.5 - Add Split PDF Count" sap2010:WorkflowViewState.IdRef="Assign_6">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:Int32">
+                      <CSharpReference x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpReference`1_41">splitPdfsCreated</CSharpReference>
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:Int32">
+                      <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_40">splitPdfsCreated + sourceTransactionCount</CSharpValue>
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Else>
+          </If>
+        </Sequence>
+      </ActivityAction>
+    </ForEach>
+    <Assign DisplayName="11 - Capture Run End" sap2010:WorkflowViewState.IdRef="Assign_7">
+      <Assign.To>
+        <OutArgument x:TypeArguments="s:DateTime">
+          <CSharpReference x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpReference`1_42">runEndedAt</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="s:DateTime">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_42">DateTime.Now</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="12 - Set Success Status" sap2010:WorkflowViewState.IdRef="Assign_8">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_43">status</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_43">"Success"</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="13 - Build Run Notes" sap2010:WorkflowViewState.IdRef="Assign_9">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_44">notes</CSharpReference>
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_44">"Manifest rows loaded=" + manifestRowCount.ToString() + "; Output root=" + breakdownFolderPath</CSharpValue>
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="14 - Write Run Log" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_10" UnSafe="False" WorkflowFileName="Reporting\WriteRunLog.xaml">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_RunLogPath">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_45">runLogPath</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_RunId">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_46">runId</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunStartedAt">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_47">runStartedAt</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunEndedAt">
+          <CSharpValue x:TypeArguments="s:DateTime" sap2010:WorkflowViewState.IdRef="CSharpValue`1_48">runEndedAt</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_RunBy">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_49">runBy</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_FiscalYearNumber">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_50">fiscalYearNumber</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_FiscalPeriod">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_51">fiscalPeriod</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_MatchedSourcePdfs">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_52">matchedFileCount</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_DeferredSourcePdfs">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_53">deferredFileCount</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsProcessed">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_54">sourcePdfsProcessed</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsSkipped">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_55">sourcePdfsSkipped</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_SplitPdfsCreated">
+          <CSharpValue x:TypeArguments="x:Int32" sap2010:WorkflowViewState.IdRef="CSharpValue`1_56">splitPdfsCreated</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_Status">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_57">status</CSharpValue>
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_Notes">
+          <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_58">notes</CSharpValue>
+        </InArgument>
+        <OutArgument x:TypeArguments="x:Double" x:Key="out_DurationMinutes">
+          <CSharpReference x:TypeArguments="x:Double" sap2010:WorkflowViewState.IdRef="CSharpReference`1_45">durationMinutes</CSharpReference>
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Message">
+          <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_46">message</CSharpReference>
+        </OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <WriteLine DisplayName="Log - Run Complete" sap2010:WorkflowViewState.IdRef="WriteLine_9">
+      <InArgument x:TypeArguments="x:String">
+        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_59">message</CSharpValue>
+      </InArgument>
+    </WriteLine>
+  </Sequence>
+</Activity>

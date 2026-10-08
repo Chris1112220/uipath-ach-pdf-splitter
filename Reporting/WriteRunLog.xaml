@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Activity
+    x:Class="WriteRunLog"
+    mc:Ignorable="sap sap2010"
+    mva:VisualBasic.Settings="{x:Null}"
+    sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#"
+    xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+    xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+    xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+    xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+    xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+    xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib"
+    xmlns:ui="http://schemas.uipath.com/workflow/activities"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <x:Members>
+    <x:Property Name="in_RunLogPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_RunId" Type="InArgument(x:String)" />
+    <x:Property Name="in_RunStartedAt" Type="InArgument(s:DateTime)" />
+    <x:Property Name="in_RunEndedAt" Type="InArgument(s:DateTime)" />
+    <x:Property Name="in_RunBy" Type="InArgument(x:String)" />
+    <x:Property Name="in_FiscalYearNumber" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_FiscalPeriod" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_MatchedSourcePdfs" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_DeferredSourcePdfs" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_SourcePdfsProcessed" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_SourcePdfsSkipped" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_SplitPdfsCreated" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_Status" Type="InArgument(x:String)" />
+    <x:Property Name="in_Notes" Type="InArgument(x:String)" />
+
+    <x:Property Name="out_DurationMinutes" Type="OutArgument(x:Double)" />
+    <x:Property Name="out_Message" Type="OutArgument(x:String)" />
+  </x:Members>
+
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Text</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+
+  <Sequence DisplayName="Write Run Log">
+
+    <ui:Comment
+        DisplayName="Purpose"
+        Text="Append one execution-level row to ACHPdfSplitter_RunLog.csv for operational history, observability, and later reporting." />
+
+    <ui:InvokeCode
+        DisplayName="01 - Validate Inputs"
+        Language="CSharp"
+        Code="if (string.IsNullOrWhiteSpace(in_RunLogPath))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Run log path cannot be blank.&quot;,&#xA;        &quot;in_RunLogPath&quot;);&#xA;}&#xA;&#xA;if (string.IsNullOrWhiteSpace(in_RunId))&#xA;{&#xA;    throw new System.ArgumentException(&#xA;        &quot;Run ID cannot be blank.&quot;,&#xA;        &quot;in_RunId&quot;);&#xA;}&#xA;&#xA;if (in_SourcePdfsProcessed &lt; 0 ||&#xA;    in_SourcePdfsSkipped &lt; 0 ||&#xA;    in_SplitPdfsCreated &lt; 0 ||&#xA;    in_MatchedSourcePdfs &lt; 0 ||&#xA;    in_DeferredSourcePdfs &lt; 0)&#xA;{&#xA;    throw new System.ArgumentOutOfRangeException(&#xA;        &quot;Run metrics cannot contain negative counts.&quot;);&#xA;}">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_RunLogPath">
+            <CSharpValue x:TypeArguments="x:String">in_RunLogPath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_RunId">
+            <CSharpValue x:TypeArguments="x:String">in_RunId</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsProcessed">
+            <CSharpValue x:TypeArguments="x:Int32">in_SourcePdfsProcessed</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsSkipped">
+            <CSharpValue x:TypeArguments="x:Int32">in_SourcePdfsSkipped</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SplitPdfsCreated">
+            <CSharpValue x:TypeArguments="x:Int32">in_SplitPdfsCreated</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_MatchedSourcePdfs">
+            <CSharpValue x:TypeArguments="x:Int32">in_MatchedSourcePdfs</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_DeferredSourcePdfs">
+            <CSharpValue x:TypeArguments="x:Int32">in_DeferredSourcePdfs</CSharpValue>
+          </InArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+    <ui:InvokeCode
+        DisplayName="02 - Append Run Log Row"
+        Language="CSharp"
+        Code="string logDirectory =&#xA;    System.IO.Path.GetDirectoryName(in_RunLogPath);&#xA;&#xA;if (!string.IsNullOrWhiteSpace(logDirectory))&#xA;{&#xA;    System.IO.Directory.CreateDirectory(logDirectory);&#xA;}&#xA;&#xA;bool writeHeader =&#xA;    !System.IO.File.Exists(in_RunLogPath) ||&#xA;    new System.IO.FileInfo(in_RunLogPath).Length == 0;&#xA;&#xA;System.Func&lt;string, string&gt; csv =&#xA;    value =&gt;&#xA;    {&#xA;        string safeValue =&#xA;            value ?? string.Empty;&#xA;&#xA;        return &quot;\&quot;&quot; +&#xA;               safeValue.Replace(&quot;\&quot;&quot;, &quot;\&quot;\&quot;&quot;) +&#xA;               &quot;\&quot;&quot;;&#xA;    };&#xA;&#xA;double durationMinutes =&#xA;    (in_RunEndedAt - in_RunStartedAt).TotalMinutes;&#xA;&#xA;System.Text.StringBuilder builder =&#xA;    new System.Text.StringBuilder();&#xA;&#xA;if (writeHeader)&#xA;{&#xA;    builder.AppendLine(&#xA;        &quot;RunId,RunStartedAt,RunEndedAt,RunBy,FiscalYear,FiscalPeriod,MatchedSourcePdfs,DeferredSourcePdfs,SourcePdfsProcessed,SourcePdfsSkipped,SplitPdfsCreated,DurationMinutes,Status,Notes&quot;);&#xA;}&#xA;&#xA;builder.Append(csv(in_RunId));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_RunStartedAt.ToString(&quot;yyyy-MM-dd HH:mm:ss&quot;)));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_RunEndedAt.ToString(&quot;yyyy-MM-dd HH:mm:ss&quot;)));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_RunBy));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_FiscalYearNumber.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_FiscalPeriod.ToString(&quot;00&quot;)));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_MatchedSourcePdfs.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_DeferredSourcePdfs.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_SourcePdfsProcessed.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_SourcePdfsSkipped.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_SplitPdfsCreated.ToString()));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(durationMinutes.ToString(&quot;0.00&quot;, System.Globalization.CultureInfo.InvariantCulture)));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.Append(csv(in_Status));&#xA;builder.Append(&quot;,&quot;);&#xA;builder.AppendLine(csv(in_Notes));&#xA;&#xA;System.IO.File.AppendAllText(&#xA;    in_RunLogPath,&#xA;    builder.ToString(),&#xA;    new System.Text.UTF8Encoding(false));&#xA;&#xA;out_DurationMinutes = durationMinutes;">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_RunLogPath"><CSharpValue x:TypeArguments="x:String">in_RunLogPath</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_RunId"><CSharpValue x:TypeArguments="x:String">in_RunId</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunStartedAt"><CSharpValue x:TypeArguments="s:DateTime">in_RunStartedAt</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="s:DateTime" x:Key="in_RunEndedAt"><CSharpValue x:TypeArguments="s:DateTime">in_RunEndedAt</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_RunBy"><CSharpValue x:TypeArguments="x:String">in_RunBy</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_FiscalYearNumber"><CSharpValue x:TypeArguments="x:Int32">in_FiscalYearNumber</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_FiscalPeriod"><CSharpValue x:TypeArguments="x:Int32">in_FiscalPeriod</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_MatchedSourcePdfs"><CSharpValue x:TypeArguments="x:Int32">in_MatchedSourcePdfs</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_DeferredSourcePdfs"><CSharpValue x:TypeArguments="x:Int32">in_DeferredSourcePdfs</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsProcessed"><CSharpValue x:TypeArguments="x:Int32">in_SourcePdfsProcessed</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsSkipped"><CSharpValue x:TypeArguments="x:Int32">in_SourcePdfsSkipped</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SplitPdfsCreated"><CSharpValue x:TypeArguments="x:Int32">in_SplitPdfsCreated</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Status"><CSharpValue x:TypeArguments="x:String">in_Status</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Notes"><CSharpValue x:TypeArguments="x:String">in_Notes</CSharpValue></InArgument>
+
+          <OutArgument x:TypeArguments="x:Double" x:Key="out_DurationMinutes"><CSharpReference x:TypeArguments="x:Double">out_DurationMinutes</CSharpReference></OutArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+    <ui:InvokeCode
+        DisplayName="03 - Build Run Log Message"
+        Language="CSharp"
+        Code="out_Message =&#xA;    &quot;Run log updated. RunId=&quot; +&#xA;    in_RunId +&#xA;    &quot;; Status=&quot; +&#xA;    in_Status +&#xA;    &quot;; Source PDFs processed=&quot; +&#xA;    in_SourcePdfsProcessed.ToString() +&#xA;    &quot;; Source PDFs skipped=&quot; +&#xA;    in_SourcePdfsSkipped.ToString() +&#xA;    &quot;; Split PDFs created=&quot; +&#xA;    in_SplitPdfsCreated.ToString() +&#xA;    &quot;; Duration minutes=&quot; +&#xA;    out_DurationMinutes.ToString(&quot;0.00&quot;) +&#xA;    &quot;.&quot;;">
+      <ui:InvokeCode.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="x:String" x:Key="in_RunId"><CSharpValue x:TypeArguments="x:String">in_RunId</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Status"><CSharpValue x:TypeArguments="x:String">in_Status</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsProcessed"><CSharpValue x:TypeArguments="x:Int32">in_SourcePdfsProcessed</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SourcePdfsSkipped"><CSharpValue x:TypeArguments="x:Int32">in_SourcePdfsSkipped</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="in_SplitPdfsCreated"><CSharpValue x:TypeArguments="x:Int32">in_SplitPdfsCreated</CSharpValue></InArgument>
+          <InArgument x:TypeArguments="x:Double" x:Key="out_DurationMinutes"><CSharpValue x:TypeArguments="x:Double">out_DurationMinutes</CSharpValue></InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Message"><CSharpReference x:TypeArguments="x:String">out_Message</CSharpReference></OutArgument>
+        </scg:Dictionary>
+      </ui:InvokeCode.Arguments>
+    </ui:InvokeCode>
+
+  </Sequence>
+</Activity>
