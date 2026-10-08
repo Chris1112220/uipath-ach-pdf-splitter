@@ -1,0 +1,6 @@
+{
+  "Name": "ACH_PDF_Splitter",
+  "ProjectType": "Process",
+  "Description": "Unattended UiPath process that splits combined bank ACH payment-notification PDFs into one PDF per transaction, names and files them by fiscal period, skips already-processed reports using SHA-256 hashes, and records run metrics.",
+  "MainFile": "Main.xaml"
+}
