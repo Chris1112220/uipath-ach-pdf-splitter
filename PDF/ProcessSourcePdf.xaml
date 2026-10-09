@@ -144,11 +144,13 @@
         </OutArgument>
       </upap:GetPDFPageCount.PageCount>
     </upap:GetPDFPageCount>
-    <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="532,123" sap2010:WorkflowViewState.IdRef="WriteLine_1">
-      <InArgument x:TypeArguments="x:String">
-        <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_32">"DEBUG - Page count = " + pageCount.ToString()</CSharpValue>
-      </InArgument>
-    </WriteLine>
+    <ui:LogMessage DisplayName="Log - Page Count" Level="Trace" sap:VirtualizedContainerService.HintSize="532,123" sap2010:WorkflowViewState.IdRef="LogMessage_1">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">
+          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_32">"Page count = " + pageCount.ToString()</CSharpValue>
+        </InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
     <Assign DisplayName="04 - Initialize Page Number" sap:VirtualizedContainerService.HintSize="532,175" sap2010:WorkflowViewState.IdRef="Assign_1">
       <Assign.To>
         <OutArgument x:TypeArguments="x:Int32">
@@ -228,16 +230,18 @@
             </OutArgument>
           </ui:ReadPDFText.Text>
         </ui:ReadPDFText>
-        <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="514,123" sap2010:WorkflowViewState.IdRef="WriteLine_2">
-          <InArgument x:TypeArguments="x:String">
-            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_33" xml:space="preserve">"DEBUG - Page " +
+        <ui:LogMessage DisplayName="Log - Page Details" Level="Trace" sap:VirtualizedContainerService.HintSize="514,123" sap2010:WorkflowViewState.IdRef="LogMessage_2">
+          <ui:LogMessage.Message>
+            <InArgument x:TypeArguments="x:Object">
+              <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_33" xml:space="preserve">"Page " +
 pageNumber.ToString() +
 "; Characters = " +
 (pageText == null ? "NULL" : pageText.Length.ToString()) +
 "; End marker = " +
 ((pageText ?? string.Empty).Contains("END OF TRANSACTION")).ToString()</CSharpValue>
-          </InArgument>
-        </WriteLine>
+            </InArgument>
+          </ui:LogMessage.Message>
+        </ui:LogMessage>
         <If sap:VirtualizedContainerService.HintSize="514,455" sap2010:WorkflowViewState.IdRef="If_1">
           <If.Condition>
             <InArgument x:TypeArguments="x:Boolean">

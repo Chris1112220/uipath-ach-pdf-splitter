@@ -236,7 +236,7 @@ Kept as-is from the production version, so this repo reflects what actually runs
 - **Failed-run logging:** the run log is written at the end of a successful run. A Try/Catch/Finally around `Main` would log failed runs too.
 - **Transactions must start on a new page.** That is true of the source format, and the simulator's sample follows it.
 - `FiscalYearStartMonth = 1` (a calendar fiscal year) would label the year one higher than expected; the formula assumes a mid-year start.
-- Leftover `DEBUG -` WriteLine activities in `ProcessSourcePdf.xaml` should become Log Message at Trace level.
+- ~~Leftover `DEBUG -` WriteLine activities in `ProcessSourcePdf.xaml`~~ **Fixed:** converted to Log Message activities at Trace level.
 - Move to a dedicated always-on VM with a service account.
 
 ## Tech
