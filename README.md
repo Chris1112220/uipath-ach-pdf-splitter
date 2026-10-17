@@ -1,5 +1,7 @@
 # ACH PDF Splitter Bot (UiPath, unattended)
 
+[![CI](https://github.com/Chris1112220/uipath-ach-pdf-splitter/actions/workflows/ci.yml/badge.svg)](https://github.com/Chris1112220/uipath-ach-pdf-splitter/actions/workflows/ci.yml)
+
 An unattended UiPath process that takes the combined ACH payment-notification PDF a bank sends each day and splits it into **one PDF per payment**. Each file is named after the payer and amount (`001 - Northwind Traders - $1,250.00.pdf`) and saved in a dated folder under the correct fiscal year and period. The bot never processes the same report twice, and every run is logged.
 
 > **Sanitized rebuild of a production bot.** I run this automation in production at work. This public copy keeps the workflow logic as it is but removes everything tied to my employer: the bank name, network shares, folder names, user paths, and all report data. The sample report and every payer, account and amount in this repository are **fictional** (see [`samples/`](samples/)).
@@ -12,6 +14,7 @@ An unattended UiPath process that takes the combined ACH payment-notification PD
 - Deployed to UiPath Orchestrator as an unattended process with a weekday-morning time trigger.
 - Idempotent: a source report whose SHA-256 is already in the manifest is skipped, so running it again is always safe.
 - Comes with a fictional 6-page sample report, the expected split output, and an offline Python simulator of the parsing rules.
+- CI (GitHub Actions) checks every push: it runs the offline Python simulator against the sample and confirms the expected output and the skip on re-run, and it confirms every `.xaml` file is valid XML. It does not run the bot in UiPath Studio.
 
 ## Business impact
 
@@ -154,6 +157,7 @@ The folder tree follows the fiscal calendar, not the calendar year. With `Fiscal
 uipath-ach-pdf-splitter
 ├── Main.xaml                                 entry point (unattended process)
 ├── project.json / project.uiproj / entry-points.json
+├── .github/workflows/ci.yml                  CI: runs tools/verify_split.py on every push / PR
 ├── Config/
 │   └── Config.xlsx                           Settings sheet (read by the bot) + Reference sheet (design notes)
 ├── Framework/
@@ -172,7 +176,9 @@ uipath-ach-pdf-splitter
 ├── samples/                                  FICTIONAL input report + expected split output
 └── tools/
     ├── generate_sample_report.py             builds the fictional combined ACH PDF
-    └── simulate_split.py                     offline Python port of the split + manifest logic
+    ├── simulate_split.py                     offline Python port of the split + manifest logic
+    ├── verify_split.py                       CI check: XAML parses, sample split matches, re-run skips
+    └── requirements.txt                      Python packages for the simulator and CI check
 ```
 
 Each workflow takes `in_` / `out_` arguments, checks its inputs first, and returns an `out_Message` that `Main.xaml` writes to the log. Most logic is in small `Invoke Code` (C#) blocks, so each step is easy to read and test.
@@ -221,6 +227,8 @@ pip install pypdf
 python tools/simulate_split.py "samples/input/ACH_Remittance_Report 20260831.pdf" --out samples/output
 python tools/simulate_split.py "samples/input/ACH_Remittance_Report 20260831.pdf" --out samples/output   # → skipped
 ```
+
+To run the same checks CI runs: `pip install -r tools/requirements.txt && python tools/verify_split.py`.
 
 **Production:** publish to Orchestrator as an unattended process and attach a time trigger (weekday mornings in my deployment). A scheduled, idempotent scan recovers more cleanly from machine or network interruptions than a long-running file watcher.
 
