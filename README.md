@@ -6,6 +6,17 @@ An unattended UiPath process that takes the combined ACH payment-notification PD
 
 > **Sanitized rebuild of a production bot.** I run this automation in production at work. This public copy keeps the workflow logic as it is but removes everything tied to my employer: the bank name, network shares, folder names, user paths, and all report data. The sample report and every payer, account and amount in this repository are **fictional** (see [`samples/`](samples/)).
 
+## How it works
+
+Each run follows the same path:
+
+1. **Start with the merged PDF.** The input is one combined ACH remittance report: every payment for that day in a single file. A payment with a long remittance list can continue onto the next page.
+2. **Split into one PDF per payment.** The bot reads the report page by page. When it reaches `END OF TRANSACTION`, those pages become one payment PDF, so a payment that spans pages stays together.
+3. **Rename and file by fiscal period.** Each payment is saved as `{index} - {payer} - {amount}.pdf` (for example `001 - Northwind Traders - $1,250.00.pdf`) under the fiscal-year and period folder for the run date, in a dated subfolder taken from the report filename.
+4. **SHA-256 skip check.** Before it writes anything, the bot hashes the source PDF. If that SHA-256 is already in the processed-source manifest, the report was filed on an earlier run, so this run skips it and leaves the payment PDFs in place.
+
+The sections below cover the workflows, the fiscal-period folders, and the manifest in more detail.
+
 ## Status
 
 **Version 1.0.1, the same version that runs in production**
@@ -206,31 +217,63 @@ Each workflow takes `in_` / `out_` arguments, checks its inputs first, and retur
 
 All keys are required; the bot stops at start-up if a key is missing, blank, duplicated, or has a value of the wrong type. **No credentials live in the config.** The bot needs only file-system access.
 
-## How to run
+## Setup
 
-**Prerequisites:** UiPath Studio 25.10+ (Windows, C#). Packages restore from `project.json`: `UiPath.System.Activities`, `UiPath.Excel.Activities`, `UiPath.PDF.Activities`, among others.
+Run the full process in UiPath Studio, or check the same split and skip rules with the Python tools. Commands below use the repository root as the working directory.
+
+### Prerequisites
+
+**UiPath Studio (full process)**
+
+- Windows, with UiPath Studio 25.10 or newer. This is a Windows project that uses C# expressions.
+- Packages restore from `project.json`: `UiPath.System.Activities`, `UiPath.Excel.Activities`, `UiPath.PDF.Activities`, among others. Open `project.json` in Studio and let the restore finish before you run.
+
+**Python (offline check)**
+
+- Python 3.11, the version [CI](.github/workflows/ci.yml) uses.
+- From the repo root, install the simulator dependency. `tools/requirements.txt` installs `pypdf`:
+
+  ```bash
+  pip install -r tools/requirements.txt
+  ```
+
+### Run the process in Studio
 
 1. Clone the repo and open `project.json` in Studio.
-2. In `Config/Config.xlsx`, set `DataRoot` (default `C:\ACH`). For a quick test, set `FileStableMinutes` to `0`.
-3. Create the source folder for **today's** fiscal period, which the bot works out from the run date. In October 2026 that is:
+2. Open `Config/Config.xlsx`, Settings sheet. `DataRoot` defaults to `C:\ACH`. For a quick test, set `FileStableMinutes` to `0`. At the default of `2`, a file copied in the last two minutes is deferred until a later run, so a report that is still copying is never split half-written.
+3. Create the source folder for the fiscal period of the day you run the bot. With the sample settings (`FiscalYearStartMonth` = `7`, a July-to-June year), a run in October 2026 uses:
+
    ```text
    C:\ACH\FY27\Bank Activity\04. October\Input
    ```
-4. Copy `samples/input/ACH_Remittance_Report 20260831.pdf` into it.
-5. Run `Main.xaml`. You should get five PDFs in `C:\ACH\FY27\Bank Activity\04. October\Output\2026-08-31\` that match [`samples/expected-output/`](samples/expected-output/2026-08-31), plus a manifest row and a run-log row under `C:\ACH\_Automation\ACH_PDF_Splitter\`.
-6. Run it again. The report is skipped (`SourcePdfsSkipped = 1`, `SplitPdfsCreated = 0`).
 
-**Without Studio:** check the parsing rules with the Python simulator:
+   Create that Input folder yourself. The bot creates the Output folder, and it creates state, logs, and reporting under `C:\ACH\_Automation\ACH_PDF_Splitter\`. For another run date, build the same path from [Fiscal-period folder logic](#fiscal-period-folder-logic): `C:\ACH\FY{yy}\Bank Activity\{period}. {Month}\Input`.
+
+4. Copy `samples/input/ACH_Remittance_Report 20260831.pdf` into that Input folder. The `20260831` in the filename is the report date, and it names the output subfolder (`2026-08-31`). The Input folder follows the run date, so this report belongs in October's Input folder when you run the bot in October 2026.
+5. Run `Main.xaml`. You should get five PDFs in `C:\ACH\FY27\Bank Activity\04. October\Output\2026-08-31\` that match [`samples/expected-output/2026-08-31`](samples/expected-output/2026-08-31), plus a manifest row and a run-log row under `C:\ACH\_Automation\ACH_PDF_Splitter\`.
+6. Run `Main.xaml` again. The report is skipped (`SourcePdfsSkipped = 1`, `SplitPdfsCreated = 0`), and the five PDFs from the first run stay in place.
+
+### Check the split without Studio
+
+From the repository root, after the install above:
 
 ```bash
-pip install pypdf
 python tools/simulate_split.py "samples/input/ACH_Remittance_Report 20260831.pdf" --out samples/output
-python tools/simulate_split.py "samples/input/ACH_Remittance_Report 20260831.pdf" --out samples/output   # → skipped
 ```
 
-To run the same checks CI runs: `pip install -r tools/requirements.txt && python tools/verify_split.py`.
+The first run writes five PDFs under `samples/output/2026-08-31/` and a manifest at `samples/output/_Automation/State/ProcessedSourceManifest.csv`. That output folder is gitignored (`samples/output/` in `.gitignore`).
 
-**Production:** publish to Orchestrator as an unattended process and attach a time trigger (weekday mornings in my deployment). A scheduled, idempotent scan recovers more cleanly from machine or network interruptions than a long-running file watcher.
+Run the same command a second time. The simulator prints `Skipping already-processed source PDF`, because the report's SHA-256 is already in the manifest, and it leaves the five PDFs as they are.
+
+To run the same checks CI runs (well-formed `.xaml`, sample split matches, re-run skips):
+
+```bash
+python tools/verify_split.py
+```
+
+### Production
+
+Publish to Orchestrator as an unattended process and attach a time trigger (weekday mornings in my deployment). A scheduled, idempotent scan recovers more cleanly from machine or network interruptions than a long-running file watcher.
 
 ## Adapting it to another bank's report
 
