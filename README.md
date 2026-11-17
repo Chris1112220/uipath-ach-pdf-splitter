@@ -20,7 +20,7 @@ An unattended UiPath process that takes the combined ACH payment-notification PD
 
 | | |
 |---|---|
-| **Estimated savings** | **≈ $50,000 / year** in staff time (my estimate of the labor the bot replaced) |
+| **Estimated savings** | **≈ 4,300+ hours (~$156K) / year** in staff time across 20 staff accountants (my estimate of the labor the bot replaced) |
 | **Manual process replaced** | Open each day's combined bank report, find where every transaction starts and ends, save each page range as its own PDF, type a name with payer and amount, and file it in the right fiscal-period folder |
 | **Quality** | Same naming every time, no missed or duplicated transactions, and an audit trail (source hash, transaction count, run metrics) |
 | **Operations** | Runs unattended on a schedule; nobody has to start it |
